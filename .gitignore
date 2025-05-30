@@ -26,3 +26,4 @@ mlruns/
 *.log
 *.DS_Store
 *.swp
+/data
