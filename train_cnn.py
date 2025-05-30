@@ -13,15 +13,19 @@ np.random.seed(42)
 train_df = pd.read_csv('C:/Users/akhil/sign_language/data/sign_mnist_train.csv')
 test_df = pd.read_csv('C:/Users/akhil/sign_language/data/sign_mnist_test.csv')
 
-# Filter for labels 0-8 (letters A-I)
-train_df = train_df[train_df['label'].between(0, 8)]
-test_df = test_df[test_df['label'].between(0, 8)]
-
 # Separate images (pixels) and labels
 X_train = train_df.drop('label', axis=1).values
 y_train = train_df['label'].values
 X_test = test_df.drop('label', axis=1).values
 y_test = test_df['label'].values
+
+# Map labels to a contiguous range (0-23) since label 9 (J) is missing
+# Original labels: 0-8, 10-24 (A-I, K-Z)
+# New labels: 0-8 (A-I), 9-23 (K-Z)
+label_mapping = {i: i for i in range(9)}  # 0-8 stay the same (A-I)
+label_mapping.update({i: i-1 for i in range(10, 25)})  # 10-24 become 9-23 (K-Z)
+y_train = np.array([label_mapping[label] for label in y_train])
+y_test = np.array([label_mapping[label] for label in y_test])
 
 # Normalize pixel values
 scaler = StandardScaler()
@@ -32,9 +36,9 @@ X_test = scaler.transform(X_test)
 X_train = X_train.reshape(-1, 28, 28, 1)
 X_test = X_test.reshape(-1, 28, 28, 1)
 
-# Convert labels to one-hot format (9 classes: 0-8 for A-I)
-y_train = tf.keras.utils.to_categorical(y_train, num_classes=9)
-y_test = tf.keras.utils.to_categorical(y_test, num_classes=9)
+# Convert labels to one-hot format (24 classes: A-Z minus J)
+y_train = tf.keras.utils.to_categorical(y_train, num_classes=24)
+y_test = tf.keras.utils.to_categorical(y_test, num_classes=24)
 
 # Build the CNN model
 model = tf.keras.Sequential([
@@ -45,7 +49,7 @@ model = tf.keras.Sequential([
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(128, activation='relu'),
     tf.keras.layers.Dropout(0.5),
-    tf.keras.layers.Dense(9, activation='softmax')  # 9 classes (A-I)
+    tf.keras.layers.Dense(24, activation='softmax')  # 24 classes (A-Z minus J)
 ])
 
 # Compile the model
