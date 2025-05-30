@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.ipynb_checkpoints/
+
+# Conda
+.conda/
+env/
+Anaconda*/
+*.egg-info/
+
+# Dataset and large files
+dataset/
+*.zip
+*.h5
+*.tflite
+
+# MLflow
+mlruns/
+*.db
+
+# Misc
+*.log
+*.DS_Store
+*.swp
